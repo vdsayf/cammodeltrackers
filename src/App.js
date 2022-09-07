@@ -1,5 +1,5 @@
 
-import React, {useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import './App.css';
 
@@ -8,10 +8,12 @@ import * as facemesh from "@tensorflow-models/facemesh";
 import Webcam from 'react-webcam';
 import {drawMesh} from "./utilities";
 
-function App() {
+
+function App(props) {
   //setup references
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
+  
 
   //load facemesh
   const runFacemesh = async () => {
@@ -22,7 +24,17 @@ function App() {
     setInterval(() =>{
       detect(net)
     }, 100)
-    };
+  };
+  
+  //API STUFF
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/users")
+        .then((res) => res.json())
+        .then((json) => {
+          setItems(json)
+        })
+    })
 
   //detect function
   const detect = async(net) =>{
@@ -52,10 +64,15 @@ function App() {
     }
   };
 
+  
+
   runFacemesh();
   //putting in camera
   return (
     <div className="App">
+      
+
+
       <header className='App Header'>
       <Webcam ref = {webcamRef}
       style = {{
@@ -83,6 +100,15 @@ function App() {
           height: 480
         }} />
         </header>
+        <h1> Fetch data from an api in react </h1>  {
+            items.map((item) => ( 
+            <ol key = { item.id } >
+                User_Name: { item.username }, 
+                Full_Name: { item.name }, 
+                User_Email: { item.email } 
+                </ol>
+            ))
+            }
     </div>
   );
 }
